@@ -1,0 +1,11 @@
+Fit Information 
+ 
+Elements 
+ 
+[c,n,o,ne,mg,si,s,ca,fe]
+ 
+Info array is of the form [A, mu, sigma, alpha, z_T] 
+ 
+c
+ 
+ISM: [3.323622167894885e+20,51.184078947092836,7.579021499253709,4.769773739430955,-0.6750000000000118]
