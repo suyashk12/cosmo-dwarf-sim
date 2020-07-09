@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import gizmo_analysis as gizmo
 import utilities as ut
 import numpy as np
@@ -12,10 +6,6 @@ from matplotlib import colors
 from scipy import optimize
 import glob
 import math
-
-
-# In[2]:
-
 
 def num_PDF(values, weights, left, right, bin_size, norm):
     
@@ -26,18 +16,17 @@ def num_PDF(values, weights, left, right, bin_size, norm):
 
     return centers, heights
 
-
-# In[3]:
-
-
 def fit_error(y, f):
     return np.sum((y-f)**2)
 
+def fit_func_1(Z, A, mu, sigma):
+    
+    P = (A/np.sqrt(2*np.pi*sigma**2))*np.exp(-((Z-mu)**2/(2*sigma**2)))
+    
+    return P
 
-# In[4]:
 
-
-def fit_func(Z, A, mu, sigma, alpha, z_T):
+def fit_func_2(Z, A, mu, sigma, alpha, z_T):
     
     B = (A*np.exp(alpha*z_T))/np.sqrt(2*np.pi*sigma**2)*np.exp(-(z_T-mu)**2/(2*sigma**2))
     
@@ -52,9 +41,6 @@ def fit_func(Z, A, mu, sigma, alpha, z_T):
     return P
 
 
-# In[5]:
-
-
 def fit_PDF(centers, heights):
             
     fit = np.zeros(len(centers))
@@ -63,12 +49,10 @@ def fit_PDF(centers, heights):
 
     # If all bins are empty
     if (np.all(heights == 0)):
-        fit_params = np.array([0, float('nan'), float('inf'), 0, float('nan')])
+        fit_params = np.array([0, float('nan'), float('nan'), float('nan'), float('nan')])
     
     # Otherwise
     else:
-        
-        # Wisely guessing fit parameters to ease the fitting routine's job
         
         # Information about the peak in the numerical PDF
         peak_ind = np.where(heights == np.max(heights))[0][0]
@@ -87,43 +71,54 @@ def fit_PDF(centers, heights):
           
         # Estimating A accordingly, by using the peak value at mu
         A = np.sqrt(2*np.pi*sigma**2)*peak_height
-    
-        # Figuring out best z_T for fit by looping across bin centers after the peak
-        prev_err = float('inf')
         
-        for i in range(peak_ind, len(centers)):
+        # First fit a Gaussian
             
-            v_T = centers[i] 
-            init_height = heights[i]
-            
-            # Estimating alpha using half-life decay
-            alpha = 0
+        guess_params = np.array([A, mu, sigma])
+        fit_params, fit_covar = optimize.curve_fit(fit_func_1, centers, heights, p0=guess_params)
+        fit = fit_func_1(centers, *fit_params)
+        fit_err = fit_error(heights, fit)
+        fit_params = np.concatenate([fit_params, np.array([float('nan'), float('nan')])])
+                
+        prev_err = fit_err
         
-            for j in range(i+1, len(centers)):
-                if(heights[j] <= init_height/2):
-                    alpha = np.log(2)/(centers[j]-v_T)
-                    break
+        # See if an exponential decay tail exists and is a better fit
+        
+        try:
+        
+            for i in range(peak_ind, len(centers)):
             
-            curr_guess_params = np.array([A, mu, sigma, alpha])
+                v_T = centers[i] 
+                init_height = heights[i]
             
-            curr_fit_params, curr_fit_covar = optimize.curve_fit(
-                        lambda centers, A, mu, sigma, alpha: fit_func(centers, A, mu, sigma, alpha, v_T)
+                # Estimating alpha using half-life decay
+                alpha = 0
+        
+                for j in range(i+1, len(centers)):
+                    if(heights[j] <= init_height/2):
+                        alpha = np.log(2)/(centers[j]-v_T)
+                        break
+            
+                curr_guess_params = np.array([A, mu, sigma, alpha])
+            
+                curr_fit_params, curr_fit_covar = optimize.curve_fit(
+                            lambda centers, A, mu, sigma, alpha: fit_func_2(centers, A, mu, sigma, alpha, v_T)
                                 , centers, heights, p0=curr_guess_params, method = 'dogbox', maxfev = 5000)
             
-            curr_fit = fit_func(centers, *curr_fit_params, v_T)
-            curr_err = fit_error(heights, curr_fit)
+                curr_fit = fit_func_2(centers, *curr_fit_params, v_T)
+                curr_err = fit_error(heights, curr_fit)
 
-            if(curr_err < prev_err):
-                fit = curr_fit
-                fit_err = curr_err
-                fit_params = np.concatenate([curr_fit_params, np.array([v_T])])
+                if(curr_err < prev_err):
+                    fit = curr_fit
+                    fit_err = curr_err
+                    fit_params = np.concatenate([curr_fit_params, np.array([v_T])])
                 
-            prev_err = curr_err
-    
+                prev_err = curr_err
+
+        except:
+            pass
+        
     return fit, fit_params
-
-
-# In[6]:
 
 
 def select_phase(temperatures, radii, phase_num):
@@ -152,29 +147,18 @@ def select_phase(temperatures, radii, phase_num):
 
     return select_phase
 
-
-# In[7]:
-
-
 # Specifying simulation directory and the directory to save results in
 
 wdir = str(input('Enter simulation directory path: '))
 sdir = wdir + str(input('Enter path of storage directory relative to simulation directory: '))
 
-
-# In[8]:
-
-
 # Finding all available snapshot indices
 
 path_list = glob.glob(wdir +'output/snap*')
 file_list = [path.replace(wdir + 'output/snapshot_', '') for path in path_list]
-file_list = [file.replace(wdir + 'output/snadir_', '') for file in file_list]
+file_list = [file.replace(wdir + 'output/snapdir_', '') for file in file_list]
 snap_list = [path.replace('.hdf5', '') for path in  file_list]
 snap_indices = np.array(np.sort([int(snap) for snap in snap_list]))
-
-
-# In[9]:
 
 
 # Select metal
@@ -201,14 +185,14 @@ info.write('Phase: ' + phase + '\n \n')
 info.close()
 
 
-# In[10]:
-
-
 # Create PDFs for all snapshots
 
 info = open(sdir + file_name,'a')
 
-info.write('Info array is of the form [A, mu, sigma, alpha, z_T] \n \n')
+info.write('Info array can be of the following forms \n \n') 
+info.write('1. Empty phase - [0, nan, nan, nan, nan] \n')
+info.write('2. Pure Gaussian - [A, mu, sigma, nan, nan] \n')
+info.write('3. Gaussian + exp. decay - [A, mu, sigma, alpha, z_T] \n \n')
 
 for snap_index in snap_indices:
     
@@ -287,10 +271,3 @@ for snap_index in snap_indices:
         print('Snapshot ' + str(snap_index) + ' could not be rendered')
         
 info.close()
-
-
-# In[ ]:
-
-
-
-

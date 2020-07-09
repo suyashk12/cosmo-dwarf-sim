@@ -1,26 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Importing necessary libraries
-
-# In[1]:
-
-
 import gizmo_analysis as gizmo
 import utilities as ut
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
-
-
-# Constructing numerical PDF
-# 
-# Let $V$ be the set of values and $W$ be the set of corresponding weights, each having a size $n$. Further, let a scalar $\eta$ be called the norm. The normalization of the constructed PDF $g(z)$ is then -
-# 
-# $$\int_{-\infty}^{\infty} g(z) dz = \frac{1}{\eta} \sum_{i = 1}^{n} w_i$$
-
-# In[2]:
-
 
 def num_PDF(values, weights, left, right, bin_size, norm):
     
@@ -31,11 +13,7 @@ def num_PDF(values, weights, left, right, bin_size, norm):
 
     return centers, heights
 
-
 # Importing dataset
-
-# In[3]:
-
 
 # Specifying simulation directory and the directory to save results in
 wdir = str(input('Enter simulation directory path: '))
@@ -54,9 +32,6 @@ halo_properties = ut.particle.get_halo_properties(part, 'all')
 
 # Obtaining key properties of the galaxy
 
-# In[4]:
-
-
 # Virial radius
 
 r_vir = halo_properties['radius']
@@ -68,20 +43,12 @@ temperatures = part['gas'].prop('temperature')
 number_densities = part['gas'].prop('number.density')
 masses = part['gas'].prop('mass')
 
-
 # Defining the ISM and its phases
-
-# In[5]:
-
 
 # Create a dictionary linking phases to numbers
 
 phases = {0: 'ISM', 1: 'HIM', 2: 'WIM', 3: 'WNM', 4: 'CNM'}
 num_phases = len(phases)
-
-
-# In[6]:
-
 
 # Defining the ISM and its phases
 
@@ -105,15 +72,10 @@ select_phases.append(np.all([(radii < 0.1*r_vir), (temperatures < 10**3)], axis 
 
 # Choosing metals and pre-processing abundances
 
-# In[7]:
-
 
 # Defining metals of interest
 
 metals = ['c','n','o','ne','mg','si','s','ca','fe']
-
-
-# In[8]:
 
 
 # Finding the mass and abundance of metals in the ISM as well as its various phases by grid cells
@@ -137,8 +99,6 @@ for m in metals:
 
 # Generating numerical PDF
 
-# In[9]:
-
 
 # Label and color arrays for later plots
 
@@ -148,9 +108,6 @@ colors = ['blue', 'orange', 'brown', 'green', 'black']
 # Common bin-size for all numerical PDFs
 
 bin_size = 0.05
-
-
-# In[10]:
 
 
 # Generating numerical PDFs
@@ -186,10 +143,3 @@ for k in range(0, len(metals)):
     fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.25, 1.2))
     
     print('Completed rendering numerical PDFs of {}'.format(m.title()))
-
-
-# In[ ]:
-
-
-
-

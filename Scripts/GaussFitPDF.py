@@ -1,10 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # Importing necessary libraries
-
-# In[1]:
-
 
 import gizmo_analysis as gizmo
 import utilities as ut
@@ -13,15 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from scipy import optimize
 
-
 # Constructing numerical PDF
-# 
-# Let $V$ be the set of values and $W$ be the set of corresponding weights, each having a size $n$. Further, let a scalar $\eta$ be called the norm. The normalization of the constructed PDF $g(z)$ is then -
-# 
-# $$\int_{-\infty}^{\infty} g(z) dz = \frac{1}{\eta} \sum_{i = 1}^{n} w_i$$
-
-# In[2]:
-
 
 def num_PDF(values, weights, left, right, bin_size, norm):
     
@@ -32,18 +18,6 @@ def num_PDF(values, weights, left, right, bin_size, norm):
 
     return centers, heights
 
-
-# Fitting function, Gaussian - 
-# 
-# $$ p(z)= \frac{A}{\sqrt{2 \pi \sigma^2}} e^{-\frac{(z-\mu)^2}{2 \sigma^2}}$$
-# 
-# Which we want to obey the same normalization as the numerical PDF -
-# 
-# $$ \int_{-\infty}^{\infty} p(z) dz = \frac{1}{\eta} \sum_{i = 1}^{n} w_i$$
-
-# In[3]:
-
-
 def fit_func(Z, A, mu, sigma):
     
     P = (A/np.sqrt(2*np.pi*sigma**2))*np.exp(-((Z-mu)**2/(2*sigma**2)))
@@ -52,8 +26,6 @@ def fit_func(Z, A, mu, sigma):
 
 
 # Constructing fitted PDF
-
-# In[4]:
 
 
 def fit_PDF(centers, heights):
@@ -99,9 +71,6 @@ def fit_PDF(centers, heights):
 
 # Importing dataset
 
-# In[5]:
-
-
 # Specifying simulation directory and the directory to save results in
 wdir = str(input('Enter simulation directory path: '))
 sdir = wdir + str(input('Enter path of storage directory relative to simulation directory: '))
@@ -117,20 +86,13 @@ part = gizmo.io.Read.read_snapshots(['star', 'gas', 'dark'], 'index', sim_index,
 halo_properties = ut.particle.get_halo_properties(part, 'all')
 
 
-# In[6]:
-
-
 # Creating the fit_info file
 
 info = open(sdir + 'fit_info.txt', 'w')
 info.write('Fit Information \n \n')
 info.close()
 
-
 # Obtaining key properties of the galaxy
-
-# In[7]:
-
 
 # Virial radius
 
@@ -143,20 +105,12 @@ temperatures = part['gas'].prop('temperature')
 number_densities = part['gas'].prop('number.density')
 masses = part['gas'].prop('mass')
 
-
 # Defining the ISM and its phases
-
-# In[8]:
-
 
 # Create a dictionary linking phases to numbers
 
 phases = {0: 'ISM', 1: 'HIM', 2: 'WIM', 3: 'WNM', 4: 'CNM'}
 num_phases = len(phases)
-
-
-# In[9]:
-
 
 # Defining the ISM and its phases
 
@@ -179,8 +133,6 @@ select_phases.append(np.all([(radii < 0.1*r_vir), (temperatures < 10**3)], axis 
 
 
 # Choosing metals and pre-processing abundances
-
-# In[10]:
 
 
 # Defining metals of interest
@@ -205,9 +157,6 @@ info.write('\n \n')
 info.close()
 
 
-# In[11]:
-
-
 # Finding the mass and abundance of metals in the ISM as well as its various phases by grid cells
 
 # Grid distribution of masses by phase
@@ -229,8 +178,6 @@ for m in metals:
 
 # Generating numerical PDF and its Gaussian fit
 
-# In[12]:
-
 
 # Label and color arrays for later plots
 
@@ -241,9 +188,6 @@ colors = ['blue', 'orange', 'brown', 'green', 'black']
 # Common bin-size for all numerical PDFs
 
 bin_size = 0.05
-
-
-# In[13]:
 
 
 # Generating numerical PDFs and Gaussian fits, also writing fit parameters to fit_info.txt
@@ -320,10 +264,3 @@ for k in range(0, len(metals)):
     print('Completed rendering numerical and fitted PDFs, writing fit parameters to fit_info.txt for {}'.format(m.title()))
     
 info.close()
-
-
-# In[ ]:
-
-
-
-

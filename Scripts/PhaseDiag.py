@@ -1,22 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# Importing necessary libraries
-
-# In[1]:
-
-
 import gizmo_analysis as gizmo
 import utilities as ut
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
-
-
-# Importing dataset
-
-# In[2]:
-
 
 # Specifying simulation directory and the directory to save results in
 wdir = str(input('Enter simulation directory path: '))
@@ -35,19 +21,11 @@ halo_properties = ut.particle.get_halo_properties(part, 'all')
 
 # Determining some key properties of the galaxy
 
-# In[3]:
-
-
 # Finding radial distance, temperature, number density, and mass of grid cells
-
 r = part['gas'].prop('host.distance.principal.spherical')[:,0]
 T = part['gas'].prop('temperature')
 n = part['gas'].prop('number.density')
 m = part['gas'].prop('mass')
-
-
-# In[4]:
-
 
 # Phase diagram of the galaxy
 
@@ -69,10 +47,3 @@ plt.title('Phase diagram for the galaxy')
 plt.savefig(sdir + 'phase_diag.png')
 
 print('Completed rendering phase diagram')
-
-
-# In[ ]:
-
-
-
-
