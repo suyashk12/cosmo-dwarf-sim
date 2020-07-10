@@ -1,8 +1,23 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Importing necessary libraries
+
 import gizmo_analysis as gizmo
 import utilities as ut
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
+
+
+# Setting text properties for plots
+
+plt.rcParams.update({'font.size': 15})
+plt.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+plt.close()
+
+
+# Importing dataset
 
 # Specifying simulation directory and the directory to save results in
 wdir = str(input('Enter simulation directory path: '))
@@ -18,10 +33,10 @@ part = gizmo.io.Read.read_snapshots(['star', 'gas', 'dark'], 'index', sim_index,
 # Getting halo properties
 halo_properties = ut.particle.get_halo_properties(part, 'all')
 
-
 # Determining some key properties of the galaxy
 
 # Finding radial distance, temperature, number density, and mass of grid cells
+
 r = part['gas'].prop('host.distance.principal.spherical')[:,0]
 T = part['gas'].prop('temperature')
 n = part['gas'].prop('number.density')

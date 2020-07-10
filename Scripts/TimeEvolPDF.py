@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Importing necessary libraries
+
 import gizmo_analysis as gizmo
 import utilities as ut
 import numpy as np
@@ -6,6 +11,16 @@ from matplotlib import colors
 from scipy import optimize
 import glob
 import math
+
+
+# Setting text properties for plots
+
+plt.rcParams.update({'font.size': 16.5})
+plt.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+plt.close()
+
+
+# Necessary functions
 
 def num_PDF(values, weights, left, right, bin_size, norm):
     
@@ -16,8 +31,10 @@ def num_PDF(values, weights, left, right, bin_size, norm):
 
     return centers, heights
 
+
 def fit_error(y, f):
     return np.sum((y-f)**2)
+
 
 def fit_func_1(Z, A, mu, sigma):
     
@@ -147,10 +164,12 @@ def select_phase(temperatures, radii, phase_num):
 
     return select_phase
 
+
 # Specifying simulation directory and the directory to save results in
 
 wdir = str(input('Enter simulation directory path: '))
 sdir = wdir + str(input('Enter path of storage directory relative to simulation directory: '))
+
 
 # Finding all available snapshot indices
 
@@ -227,7 +246,7 @@ for snap_index in snap_indices:
         # Generating numerical PDFs and Gaussian + exp decay fits
         mass_norm = np.sum(mass_phase)
         
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize = (10, 10))
         
         left = np.floor(np.min(abundance_metal_phase))
         right = np.ceil(np.max(abundance_metal_phase))
@@ -248,8 +267,9 @@ for snap_index in snap_indices:
         ax.plot(centers, fit, color = 'g', label = phase + str(' fit'), linestyle = ':')
     
         # Labelling the plots
-        ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(metal.title()))
-        ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(metal.title()))
+        ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(metal.title()), fontsize = 22)
+        ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(metal.title()),
+                     fontsize = 22)
         ax.set_title('Abundance PDF for {} in various ISM phases'.format(metal.title()))
         ax.legend() 
     

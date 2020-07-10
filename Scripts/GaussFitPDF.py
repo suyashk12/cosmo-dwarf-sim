@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 # Importing necessary libraries
 
 import gizmo_analysis as gizmo
@@ -6,6 +9,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
 from scipy import optimize
+
+
+# Setting text properties for plots
+
+plt.rcParams.update({'font.size': 16.5})
+plt.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+plt.close()
+
 
 # Constructing numerical PDF
 
@@ -18,6 +29,9 @@ def num_PDF(values, weights, left, right, bin_size, norm):
 
     return centers, heights
 
+
+# Fitting function, Gaussian - 
+
 def fit_func(Z, A, mu, sigma):
     
     P = (A/np.sqrt(2*np.pi*sigma**2))*np.exp(-((Z-mu)**2/(2*sigma**2)))
@@ -26,7 +40,6 @@ def fit_func(Z, A, mu, sigma):
 
 
 # Constructing fitted PDF
-
 
 def fit_PDF(centers, heights):
 
@@ -85,12 +98,12 @@ part = gizmo.io.Read.read_snapshots(['star', 'gas', 'dark'], 'index', sim_index,
 # Getting halo properties
 halo_properties = ut.particle.get_halo_properties(part, 'all')
 
-
 # Creating the fit_info file
 
 info = open(sdir + 'fit_info.txt', 'w')
 info.write('Fit Information \n \n')
 info.close()
+
 
 # Obtaining key properties of the galaxy
 
@@ -104,6 +117,7 @@ radii = part['gas'].prop('host.distance.principal.spherical')[:,0]
 temperatures = part['gas'].prop('temperature')
 number_densities = part['gas'].prop('number.density')
 masses = part['gas'].prop('mass')
+
 
 # Defining the ISM and its phases
 
@@ -133,7 +147,6 @@ select_phases.append(np.all([(radii < 0.1*r_vir), (temperatures < 10**3)], axis 
 
 
 # Choosing metals and pre-processing abundances
-
 
 # Defining metals of interest
 
@@ -198,7 +211,7 @@ info.write('Info array is of the form [A, mu, sigma] \n \n')
 
 mass_norm = np.sum(mass_phases[0])
 
-fig, axes = plt.subplots(nrows = len(metals), ncols = 1, figsize = (8, 64))
+fig, axes = plt.subplots(nrows = len(metals), ncols = 1, figsize = (10, 64))
 
 for k in range(0, len(metals)):
     
@@ -249,15 +262,16 @@ for k in range(0, len(metals)):
 
     # Labelling the plots
     
-    ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()))
-    ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()))
+    ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()), fontsize = 22)
+    ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
+                 fontsize = 22)
     ax.set_title('Abundance PDF for {} in various ISM phases'.format(m.title()))
     ax.legend()
     
     # Saving the plots
     fig.tight_layout(pad = 3.0)
     extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.25, 1.2))
+    fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.35, 1.35))
     
     info.write('\n \n')
     

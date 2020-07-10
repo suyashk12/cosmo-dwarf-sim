@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# coding: utf-8
+
 # Importing necessary libraries
 
 import gizmo_analysis as gizmo
@@ -7,6 +10,14 @@ import matplotlib.pyplot as plt
 from matplotlib import colors
 from scipy import optimize
 import math
+
+
+# Setting text properties for plots
+
+plt.rcParams.update({'font.size': 16.5})
+plt.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+plt.close()
+
 
 # Constructing numerical PDF
 
@@ -20,9 +31,13 @@ def num_PDF(values, weights, left, right, bin_size, norm):
     return centers, heights
 
 
+# Function to evaluate fit
+
 def fit_error(y, f):
     return np.sum((y-f)**2)
 
+
+# Fitting function 1, Gaussian - 
 
 def fit_func_1(Z, A, mu, sigma):
     
@@ -30,6 +45,8 @@ def fit_func_1(Z, A, mu, sigma):
     
     return P
 
+
+# Fitting function 2, normalized, piece-wise gaussian + power-law given by - 
 
 def fit_func_2(Z, A, mu, sigma, alpha, z_T):
     
@@ -47,7 +64,6 @@ def fit_func_2(Z, A, mu, sigma, alpha, z_T):
 
 
 # Constructing fitted PDF
-
 
 def fit_PDF(centers, heights):
             
@@ -131,6 +147,7 @@ def fit_PDF(centers, heights):
 
 # Importing dataset
 
+
 # Specifying simulation directory and the directory to save results in
 wdir = str(input('Enter simulation directory path: '))
 sdir = wdir + str(input('Enter path of storage directory relative to simulation directory: '))
@@ -169,7 +186,6 @@ masses = part['gas'].prop('mass')
 
 # Defining the ISM and its phases
 
-
 # Create a dictionary linking phases to numbers
 
 phases = {0: 'ISM', 1: 'HIM', 2: 'WIM', 3: 'WNM', 4: 'CNM'}
@@ -198,6 +214,7 @@ select_phases.append(np.all([(radii < 0.1*r_vir), (temperatures < 10**3)], axis 
 
 # Choosing metals and pre-processing abundances
 
+
 # Defining metals of interest
 
 metals = ['c','n','o','ne','mg','si','s','ca','fe']
@@ -218,6 +235,7 @@ for i in range(0, len(metals)):
 info.write('\n \n')
 
 info.close()
+
 
 # Finding the mass and abundance of metals in the ISM as well as its various phases by grid cells
 
@@ -251,7 +269,6 @@ colors = ['blue', 'orange', 'brown', 'green', 'black']
 
 bin_size = 0.05
 
-
 # Generating numerical PDFs and Gaussian + exp decay fits, also writing fit parameters to fit_info.txt
 
 info = open(sdir + 'fit_info.txt','a')
@@ -263,7 +280,7 @@ info.write('3. Gaussian + exp. decay - [A, mu, sigma, alpha, z_T] \n \n')
 
 mass_norm = np.sum(mass_phases[0])
 
-fig, axes = plt.subplots(nrows = len(metals), ncols = 1, figsize = (8, 64))
+fig, axes = plt.subplots(nrows = len(metals), ncols = 1, figsize = (10, 64))
 
 for k in range(0, len(metals)):
     
@@ -313,15 +330,16 @@ for k in range(0, len(metals)):
 
     # Labelling the plots
     
-    ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()))
-    ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()))
+    ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()), fontsize = 22)
+    ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
+                 fontsize = 22)
     ax.set_title('Abundance PDF for {} in various ISM phases'.format(m.title()))
     ax.legend()
     
     # Saving the plots
     fig.tight_layout(pad = 3.0)
     extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.25, 1.2))
+    fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.35, 1.35))
     
     info.write('\n \n')
     

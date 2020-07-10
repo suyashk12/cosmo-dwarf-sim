@@ -1,8 +1,23 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# Importing necessary libraries
+
 import gizmo_analysis as gizmo
 import utilities as ut
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
+
+
+# Setting text properties for plots
+
+plt.rcParams.update({'font.size': 16.5})
+plt.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+plt.close()
+
+
+# Constructing numerical PDF
 
 def num_PDF(values, weights, left, right, bin_size, norm):
     
@@ -12,6 +27,7 @@ def num_PDF(values, weights, left, right, bin_size, norm):
     heights = heights/(bin_size*norm)
 
     return centers, heights
+
 
 # Importing dataset
 
@@ -43,12 +59,14 @@ temperatures = part['gas'].prop('temperature')
 number_densities = part['gas'].prop('number.density')
 masses = part['gas'].prop('mass')
 
+
 # Defining the ISM and its phases
 
 # Create a dictionary linking phases to numbers
 
 phases = {0: 'ISM', 1: 'HIM', 2: 'WIM', 3: 'WNM', 4: 'CNM'}
 num_phases = len(phases)
+
 
 # Defining the ISM and its phases
 
@@ -112,7 +130,7 @@ bin_size = 0.05
 
 # Generating numerical PDFs
 
-fig, axes = plt.subplots(nrows = len(metals), ncols = 1, figsize = (8, 64))
+fig, axes = plt.subplots(nrows = len(metals), ncols = 1, figsize = (10, 64))
 
 for k in range(0, len(metals)):
     
@@ -133,13 +151,14 @@ for k in range(0, len(metals)):
         heights *= mass_norm
         ax.plot(centers, heights, color = colors[i], label = labels_raw[i])
 
-    ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()))
-    ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()))
+    ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()), fontsize = 22)
+    ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
+                 fontsize = 22)
     ax.set_title('Abundance PDF for {} in various ISM phases'.format(m.title()))
     ax.legend()
     
     fig.tight_layout(pad = 3.0)
     extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.25, 1.2))
+    fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.35, 1.35))
     
     print('Completed rendering numerical PDFs of {}'.format(m.title()))
