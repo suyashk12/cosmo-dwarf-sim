@@ -57,8 +57,12 @@ cb.set_label(r'Mass in Bin (M$_{\odot}$)')
 
 ax.set_xlabel(r'log(n)')
 ax.set_ylabel(r'log(T)')
+ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+
 plt.title('Phase diagram for the galaxy')
 
 plt.savefig(sdir + 'phase_diag.png')
+
+plt.close()
 
 print('Completed rendering phase diagram')

@@ -1,0 +1,14 @@
+Evolution Information 
+ 
+Metal: fe
+Phase: WNM
+ 
+Info array can be of the following forms 
+ 
+1. Empty phase - [0, nan, nan, nan, nan] 
+2. Pure Gaussian - [A, mu, sigma, nan, nan] 
+3. Gaussian + exp. decay - [A, mu, sigma, alpha, z_T] 
+ 
+Snapshot 0: not rendered 
+Snapshot 1: not rendered 
+Snapshot 600: [37235908.30077032,-1.6489264767860854,0.18267844182725104,0.0-0.07500000000001394] 

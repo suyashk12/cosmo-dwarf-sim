@@ -333,6 +333,7 @@ for k in range(0, len(metals)):
     ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()), fontsize = 22)
     ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
                  fontsize = 22)
+    ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
     ax.set_title('Abundance PDF for {} in various ISM phases'.format(m.title()))
     ax.legend()
     
@@ -343,6 +344,8 @@ for k in range(0, len(metals)):
     
     info.write('\n \n')
     
+    plt.close()
+
     print('Completed rendering numerical and fitted PDFs, writing fit parameters to fit_info.txt for {}'.format(m.title()))
     
 info.close()

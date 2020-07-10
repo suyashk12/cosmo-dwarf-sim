@@ -271,7 +271,8 @@ for snap_index in snap_indices:
         ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(metal.title()),
                      fontsize = 22)
         ax.set_title('Abundance PDF for {} in various ISM phases'.format(metal.title()))
-        ax.legend() 
+	ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+        ax.legend()
     
         # Save the file
         fig.savefig(sdir + '{0}-abundance_{1}_{2}.png'.format(str(snap_index), metal.title(), phase))
@@ -281,8 +282,9 @@ for snap_index in snap_indices:
         info.write('[' + str(fit_params[0]) + ',' + str(fit_params[1]) +
                     ',' + str(fit_params[2]) + ',' + str(fit_params[3])
                         + str(fit_params[4]) + '] \n')
-        
-         
+                 
+	plt.close()
+
         print('Completed rendering and writing parameters for snapshot ' + str(snap_index))
         
     

@@ -154,11 +154,14 @@ for k in range(0, len(metals)):
     ax.set_xlabel(r'$\left[ \frac{{{}}}{{H}} \right]$'.format(m.title()), fontsize = 22)
     ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
                  fontsize = 22)
+    ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
     ax.set_title('Abundance PDF for {} in various ISM phases'.format(m.title()))
     ax.legend()
     
     fig.tight_layout(pad = 3.0)
     extent = ax.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
     fig.savefig(sdir + 'abundance_{}.png'.format(m.title()), bbox_inches=extent.expanded(1.35, 1.35))
+	
+    plt.close()
     
     print('Completed rendering numerical PDFs of {}'.format(m.title()))

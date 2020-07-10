@@ -4,7 +4,11 @@ Elements
  
 [c,n,o,ne,mg,si,s,ca,fe]
  
-Info array is of the form [A, mu, sigma, alpha, z_T] 
+Info array can be of the following forms 
+ 
+1. Empty phase - [0, nan, nan, nan, nan] 
+2. Pure Gaussian - [A, mu, sigma, nan, nan] 
+3. Gaussian + exp. decay - [A, mu, sigma, alpha, z_T] 
  
 c
  
