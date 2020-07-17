@@ -15,6 +15,7 @@ Notebook/ script summary
 The code is broadly categorizable into -
 
 A. Spatial analysis - aimed at gaining detailed knowledge about a particular snapshot of the simulation.
+
 B. Temporal analysis - aimed at understanding the time evolution of some key properties of the galaxy.
 
 I. Spatial analysis code includes the following notebooks/ scripts. We assume that wdir is the working directory, which contains the data corresponding to the galaxy -
