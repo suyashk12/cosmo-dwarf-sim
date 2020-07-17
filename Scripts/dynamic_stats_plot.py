@@ -151,7 +151,7 @@ for m in metals:
     ax.set_ylabel('Central Tendency', labelpad = 10, fontsize = 38)
     ax.set_title('Central Tendency of {} Abundance vs. Time'.format(m.title()), y = 1.04)
     ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
-    plt.savefig(sdir + 'analysis_plots/{}-central_tendency_vs_time.png'.format(m))
+    plt.savefig(sdir + 'analysis_plots/central_tendency_{}_vs_time.png'.format(m))
     plt.close()
 
     print('Created central tendency of abundance vs. time plot for {} \n'.format(m.title()))
@@ -159,13 +159,12 @@ for m in metals:
     print('Creating spread of abundance vs. time plot for {} ...'.format(m.title()))
 
     fig, ax = plt.subplots(figsize = (15, 13))
-    ax.plot(times, mus[m], color = 'red', label = r'$\mu$')
-    ax.plot(times, medians[m], color = 'green', label = 'Median')
+    ax.plot(times, sigmas[m], color = 'red', label = r'$\sigma$')
     ax.set_xlabel('Time (Gyr)', labelpad = 10, fontsize = 38)
     ax.set_ylabel(r'$\sigma$', labelpad = 10, fontsize = 38)
     ax.set_title('Spread of {} Abundance vs. Time'.format(m.title()), y = 1.04)
     ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
-    plt.savefig(sdir + 'analysis_plots/{}-spread_vs_time.png'.format(m))
+    plt.savefig(sdir + 'analysis_plots/spread_{}_vs_time.png'.format(m))
     plt.close()
 
     print('Created spread of abundance vs. time plot for {} \n'.format(m.title()))
