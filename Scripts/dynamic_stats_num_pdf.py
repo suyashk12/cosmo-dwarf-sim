@@ -26,7 +26,6 @@ plt.close()
 
 # Constructing numerical PDF
 
-
 def num_PDF(values, weights, left, right, bin_size):
     
     bins = np.arange(left, right, bin_size)
@@ -39,7 +38,6 @@ def num_PDF(values, weights, left, right, bin_size):
 
 # Select grid-cells that are either in CNM or WNM
 
-
 def select_neutral(temperatures, radii):
 
     #WNM + CNM
@@ -51,32 +49,63 @@ def select_neutral(temperatures, radii):
 # Find star-formation rate
 
 def find_SFR(form_masses, ages, age_limit):
-    
-    # age_limit in MYr
-    
-    select_indices = np.all([ages <= age_limit])
+    # age_limit in Myr
+    # ages is in Gyr, use 1 Gyr = 10**3 Myr
+    ages_myr = ages*(10**3)
+    select_indices = np.all([(ages_myr <= age_limit)], axis = 0)
     select_masses = form_masses[select_indices]
     
     total_mass = np.sum(select_masses)
-    SFR = total_mass/(age_limit*(10**6))
+    SFR = total_mass/(age_limit*10**6)
     
-    return SFR    
+    return SFR
 
 
-# Find weighted-average of mach number
+# Find weighted-average of velocity properties
+
+def find_custom_speeds(gamma, temperatures, molecular_weights):
+    k_B = 1.38 * 10**(-23)
+    # custom_speeds will be in m/s, using molecular_weights in kg, so we convert it to km/s
+    custom_speeds = np.sqrt((gamma*k_B*temperatures)/(molecular_weights*(10**-3)))
+    custom_speeds *= 10**-3
+    
+    return custom_speeds
 
 
-def find_mach(temperatures, molecular_weights, masses, velocities):
+def find_mach(temperatures, molecular_weights, weights, velocities):
+
+    sound_speeds = find_custom_speeds(5/3, temperatures, molecular_weights)
+    mach_numbers = velocities/sound_speeds 
+    mach_number = np.average(mach_numbers, weights = weights)
     
-    gamma = 5/3
-    R = 8.314
+    return mach_number
+
+
+# Defining weighted median for later use
+
+
+def weighted_quantile(values, quantiles, weight=None, values_sorted=False):
     
-    sound_speeds = np.sqrt((gamma*R*temperatures)/(molecular_weights*(10**-3)))
-    mach_numbers = velocities/sound_speeds
-    
-    mach_number = np.average(mach_numbers, weights = masses)
-    
-    return mach_number    
+    values = np.array(values)
+    quantiles = np.array(quantiles)
+    if weight is None:
+        weight = np.ones(len(values))
+    weight = np.array(weight)
+    assert np.all(quantiles >= 0) and np.all(quantiles <= 1), 'quantiles should be in [0, 1]'
+
+    if not values_sorted:
+        sorter = np.argsort(values)
+        values = values[sorter]
+        weight = weight[sorter]
+
+    weighted_quantiles = np.cumsum(weight) - 0.5 * weight
+    weighted_quantiles /= np.sum(weight)
+
+    return np.interp(quantiles, weighted_quantiles, values)
+
+
+def weighted_median(vals, weights):
+    return weighted_quantile(vals, 0.5, weight=weights)
 
 
 # Specifying simulation directory and the directory to save results in
@@ -141,20 +170,52 @@ for m in metals:
 # Create a dictionary linking phases to numbers
 phases = {0: 'ISM', 1: 'HIM', 2: 'WIM', 3: 'WNM', 4: 'CNM'}
 
+
 # Get statistics for all snapshots
-rendered_snaps = []
+rendered_indices = []
 
 halo_masses = []
 
 redshifts = []
 times = []
 
+# SFR related properties
+
 SFRs_10 = []
 SFRs_100 = []
 SFRs_1000 = []
 
+# Velocity related properties
+
+velocities_mass = []
+velocities_vol = []
+velocities_spread = []
+
+sounds_mass = []
+sounds_vol = []
+sounds_spread = []
+
+thermals_mass = []
+thermals_vol = []
+thermals_spread = []
+
 mach_numbers_mass = []
 mach_numbers_vol = []
+
+# Abundance related properties
+
+means_mass = {}
+means_vol = {}
+medians_mass = {}
+medians_vol = {}
+stds = {}
+
+for m in metals:
+    means_mass[m] = []
+    means_vol[m] = []
+    medians_mass[m] = []
+    medians_vol[m] = []
+    stds[m] = []
 
 bin_size = 0.05
 
@@ -176,14 +237,30 @@ for snap_index in snap_indices:
 
         # Finding some important spatial distributions
         radii = part['gas'].prop('host.distance.total')
-        velocities = part['gas'].prop('host.velocity.total')
-
         temperatures = part['gas'].prop('temperature')
-
         masses = part['gas'].prop('mass')
+        volumes = part['gas'].prop('volume')
         molecular_weights = part['gas'].prop('molecular.weight')
 
-        volumes = part['gas'].prop('volume')
+        # Specifying crucial velocity related properties
+        velocities = part['gas'].prop('host.velocity.total')
+        sound_speeds = find_custom_speeds(5/3, temperatures, molecular_weights)
+        thermal_speeds = find_custom_speeds(3, temperatures, molecular_weights)
+
+        velocity_mass = np.average(velocities, weights = masses)
+        velocity_vol = np.average(velocities, weights = volumes)
+        velocity_spread = np.std(velocities)
+
+        sound_mass = np.average(sound_speeds, weights = masses)
+        sound_vol = np.average(sound_speeds, weights = volumes)
+        sound_spread = np.std(sound_speeds)
+
+        thermal_mass = np.average(thermal_speeds, weights = masses)
+        thermal_vol = np.average(thermal_speeds, weights = volumes)
+        thermal_spread = np.std(thermal_speeds)
+
+        mach_number_mass = find_mach(temperatures, molecular_weights, masses, velocities)
+        mach_number_vol = find_mach(temperatures, molecular_weights, volumes, velocities)
 
         # Temporal information about the galaxy
         redshift = part.info['redshift']
@@ -193,21 +270,19 @@ for snap_index in snap_indices:
         form_masses = part['star'].prop('form.mass')
         ages = part['star'].prop('age')
 
-        # Finding star formation rates, mach number at the present snapshot
+        # Finding star formation rates at the present snapshot
         SFR_10 = find_SFR(form_masses, ages, 10)
         SFR_100 = find_SFR(form_masses, ages, 100)
         SFR_1000 = find_SFR(form_masses, ages, 1000)
-
-        mach_number_mass = find_mach(temperatures, molecular_weights, masses, velocities)
-        mach_number_vol = find_mach(temperatures, molecular_weights, volumes, velocities)
 
         # Computing the numerical PDF
 
         # Find grid cells in the selected phase
         select_ind = select_neutral(temperatures, radii)
 
-        # Grid distribution of masses by phase
+        # Grid distribution of masses and volumes in neutral medium gas
         mass_dist = masses[select_ind]
+        vol_dist = volumes[select_ind]
 
         # Get numerical data for all metals
         for m in metals:
@@ -225,54 +300,79 @@ for snap_index in snap_indices:
             datafile =  str(snap_index) + '-num_' + m + '_data' + '.csv'
             abundance_df.to_csv(spath_metals[m] + 'data/num/' + datafile, index = False)
 
-            # Create plots and store them
-            fig, ax = plt.subplots(figsize = (15, 13))
-            delta_centers = centers - np.median(centers)
-            ax.plot(delta_centers, heights, label = 'Raw neutral', color = 'green')
-
-            ax.set_xlabel(
-                r'$\left[\frac{{{0}}}{{H}} \right] - med\left(\left[\frac{{{0}}}{{H}} \right]\right)$'.format(m.title()), 
-                fontsize = 36, labelpad = 5)
-            ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
-                 fontsize = 38, labelpad = 10)
-
-            ax.set_title(
-                'Abundance of {0} in neutral medium, z = {1}'.format(m.title(), str(round(redshift, 2))), y = 1.04)
-            ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
-            ax.legend()
-            fig.savefig(spath_metals[m] + 'images/num/' + 
-                        '{0}-num_{1}.png'.format(str(snap_index), m.title()))
-            plt.close()
+            # Compute central tendencies for abundances in the cold gas
+            means_mass[m].append(np.average(abundance, weights = mass_dist))
+            means_vol[m].append(np.average(abundance, weights = vol_dist))
+            medians_mass[m].append(weighted_median(abundance, mass_dist))
+            medians_vol[m].append(weighted_median(abundance, vol_dist))
+            stds[m].append(np.std(abundance))
 
             print('Completed rendering for ' + m.title() + '\n')
-            
+
+        print('Appending properties to .csv file for snapshot {} \n'.format(str(snap_index)))
+
         # Append key properties for the galaxy
-
-        rendered_snaps.append(snap_index)
-
         halo_masses.append(halo_mass)
-
         redshifts.append(redshift)
         times.append(time)
-
+        
+        # Appending star formation properties
         SFRs_10.append(SFR_10)
         SFRs_100.append(SFR_100)
         SFRs_1000.append(SFR_1000)
 
+        # Append velocity related properties
+        velocities_mass.append(velocity_mass)
+        velocities_vol.append(velocity_vol)
+        velocities_spread.append(velocity_spread)
+
+        sounds_mass.append(sound_mass)
+        sounds_vol.append(sound_vol)
+        sounds_spread.append(sound_spread)
+
+        thermals_mass.append(thermal_mass)
+        thermals_vol.append(thermal_vol)
+        thermals_spread.append(thermal_spread)
+
         mach_numbers_mass.append(mach_number_mass)
         mach_numbers_vol.append(mach_number_vol)
 
+        # Finally appending the current rendered snapshot
+        rendered_indices.append(snap_index)
+        
+        # Write all computed parameters for all snapshots
+
+        rendered_stats_dict = {'snap': rendered_indices, 'halo_mass': halo_masses, 'redshift': redshifts, 
+                               'time': times, 
+                               'velocity_mass': velocities_mass, 'velocity_vol': velocities_vol, 
+                               'velocity_spread': velocities_spread,
+                               'sound_mass': sounds_mass, 'sound_vol': sounds_vol,
+                               'sound_spread': sounds_spread,
+                               'thermal_mass': thermals_mass, 'thermal_vol': thermals_vol,
+                               'thermal_spread': thermals_spread,
+                               'mach_number_mass': mach_numbers_mass, 'mach_number_vol': mach_numbers_vol,
+                               'SFR@10Myr': SFRs_10, 'SFR@100Myr': SFRs_100, 'SFR@1000Myr': SFRs_1000}
+
+        rendered_stats_df = pd.DataFrame(rendered_stats_dict)
+        rendered_stats_df.to_csv(sdir + 'rendered_snap_stats.csv')
+        
+        print(rendered_stats_dict)
+        print()
+        
+        # Write abundance statistics
+        for m in metals:
+            param_dict = {'snap': rendered_indices, 
+                          'mean_mass': means_mass[m], 'median_mass': medians_mass[m],
+                          'mean_vol': means_vol[m], 'median_vol': medians_vol[m],
+                          'std': stds[m]}
+            param_df = pd.DataFrame(param_dict)
+            param_df.to_csv(spath_metals[m] + 'data/fit/fit_{}_params.csv'.format(m)) 
+            
+            print(m.title())
+            print(param_dict)
+            print()
+        
         print('Completed rendering snapshot {} \n'.format(str(snap_index)))   
 
     except:
         print('Snapshot {} could not be rendered \n'.format(str(snap_index)))
-
-
-# Write all computed parameters for all snapshots
-
-rendered_stats_dict = {'snap': rendered_snaps, 'halo_mass': halo_masses, 'redshift': redshifts, 
-                 'time': times, 'SFR@10Myr': SFRs_10, 'SFR@100Myr': SFRs_100, 'SFR@1000Myr': SFRs_1000, 
-                       'mach_number_mass': mach_numbers_mass, 'mach_number_vol': mach_numbers_vol}
-
-rendered_stats_df = pd.DataFrame(rendered_stats_dict)
-rendered_stats_df.to_csv(sdir + 'rendered_snap_stats.csv')

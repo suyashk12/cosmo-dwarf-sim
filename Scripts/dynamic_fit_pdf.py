@@ -15,19 +15,19 @@ import os
 
 # Setting text properties for plots
 
+
 plt.rcParams.update({'font.size': 26})
 plt.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
 plt.close()
 
 
-# Error measure of fit
+# Error measure for fit
 
 def fit_error(y, f):
     return np.sum((y-f)**2)
 
 
 # Fitting function 1, Gaussian - 
-
 
 def fit_func_1(Z, A, mu, sigma):
     
@@ -54,7 +54,6 @@ def fit_func_2(Z, A, mu, sigma, alpha, z_T):
 
 
 # Constructing fitted PDF
-
 
 def fit_PDF(centers, heights):
             
@@ -167,7 +166,6 @@ for m in metals:
 # Get statistics for all snapshots
 As = {}
 mus = {}
-medians = {}
 sigmas = {}
 alphas = {}
 z_Ts = {}
@@ -178,7 +176,6 @@ for m in metals:
     sigmas[m] = []
     alphas[m] = []
     z_Ts[m] = []
-    medians[m] = []
     
 for i in range(0, num_snaps):
     
@@ -224,12 +221,30 @@ for i in range(0, num_snaps):
         
         As[m].append(fit_params[0])
         mus[m].append(fit_params[1])
-        medians[m].append(np.median(centers))
         sigmas[m].append(fit_params[2])
         alphas[m].append(fit_params[3])
         z_Ts[m].append(fit_params[4])
 
-        # Create plots and store them
+        # Create plots for the numerical PDF and store them
+        fig, ax = plt.subplots(figsize = (15, 13))
+        delta_centers = centers - np.median(centers)
+        ax.plot(delta_centers, heights, label = 'Raw neutral', color = 'green')
+
+        ax.set_xlabel(
+            r'$\left[\frac{{{0}}}{{H}} \right] - med\left(\left[\frac{{{0}}}{{H}} \right]\right)$'.format(m.title()), 
+            fontsize = 36, labelpad = 5)
+        ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
+             fontsize = 38, labelpad = 10)
+
+        ax.set_title('z = {}'.format(str(round(redshift, 2))), y = 1.04)
+        ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
+        ax.legend()
+        fig.savefig(spath_metals[m] + 'images/num/' + 
+                    '{0}-num_{1}.png'.format(str(snap_index), m.title()))
+        plt.close()
+
+
+        # Create plots for the fitted PDF and store them
         fig, ax = plt.subplots(figsize = (15, 13))
         delta_centers = centers - np.median(centers)
         ax.plot(delta_centers, heights, label = 'Raw', color = 'green')
@@ -240,9 +255,8 @@ for i in range(0, num_snaps):
             fontsize = 38, labelpad = 5)
         ax.set_ylabel(r'$p_{{{0}, X}} \left( \left[ \frac{{{0}}}{{H}} \right] \right)$'.format(m.title()),
              fontsize = 38, labelpad = 10)
-
-        ax.set_title(
-            'Abundance of {0} in neutral medium, z = {1}'.format(m.title(), str(round(redshift, 2))), y = 1.06)
+        
+        ax.set_title('z = {}'.format(str(round(redshift, 2))), y = 1.04)
         ax.ticklabel_format(axis='both', style='sci', scilimits=(0,0))
         ax.legend()
         fig.savefig(spath_metals[m] + 'images/fit/' + 
@@ -255,8 +269,9 @@ for i in range(0, num_snaps):
 
 
 for m in metals:
-    param_dict = {'snap': rendered_indices, 
-                  'A': As[m], 'mu': mus[m], 'median': medians[m], 'sigma': sigmas[m], 
+    param_df_init = pd.read_csv(spath_metals[m] + 'data/fit/fit_{}_params.csv'.format(m))
+    param_dict_append = {'A': As[m], 'mu': mus[m], 'sigma': sigmas[m], 
                   'alpha': alphas[m], 'z_T': z_Ts[m]}
-    param_df = pd.DataFrame(param_dict)
+    param_df_append = pd.DataFrame(param_dict_append)
+    param_df = pd.concat([param_df_init, param_df_append], axis = 1)
     param_df.to_csv(spath_metals[m] + 'data/fit/fit_{}_params.csv'.format(m))
