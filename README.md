@@ -62,15 +62,13 @@ iii. Correlation Analysis - These scripts are meant to do exploratory analysis a
 
 a. dynamic_corr.ipynb - This script creates the following plots, storing them in wdir/temporal_analysis/correlation_plots/
 
-- Heatmaps correlating 
-	-> Standard deviation of abundances for all metal distributions spread_corr.png
-	-> Mass weighted median abundances for all metal distributions cent_mass_corr.png
-	-> Volume weighted median abundances for all metal distributions cent_vol_corr.png
-	-> Mass weighted median abundances for all metal distributions with their volume weighted median abundances cent_mass_cent_vol_corr.png
-	-> Standard deviation of abundances for all metal distributions with their mass weighted median abundances spread_cent_mass_corr.png
-	-> Standard deviation of abundances for all metal distributions with their volume weighted median abundances spread_cent_vol_corr.png
-	-> Abundance statistics of Fe distribution with physical properties phy_fe_corr.png (we realize that Fe is a good proxy for all metals)
-
+- Heatmap correlating standard deviation of abundances for all metal distributions spread_corr.png
+- Heatmap correlating mass weighted median abundances for all metal distributions cent_mass_corr.png
+- Heatmap correlating volume weighted median abundances for all metal distributions cent_vol_corr.png
+- Heatmap correlating mass weighted median abundances for all metal distributions with their volume weighted median abundances cent_mass_cent_vol_corr.png
+- Heatmap correlating standard deviation of abundances for all metal distributions with their mass weighted median abundances spread_cent_mass_corr.png
+- Heatmap correlating standard deviation of abundances for all metal distributions with their volume weighted median abundances spread_cent_vol_corr.png
+- Heatmap correlating abundance statistics of Fe distribution with physical properties phy_fe_corr.png (we realize that Fe is a good proxy for all metals)
 - Scatterplot matrix relating abundance statistics of Fe distribution with physical properties phy_fe_scatter_matrix.pdf
 
 b. dynamic_models.ipynb - This script creates an (expected) model of abundance statistics of the Fe distribution vs. time (realized in all galaxies) and abundance statistics of the Fe distribution vs. mean Mach number (realized only in m10q). This script is somewhat experimental, so I saved the files as abundance_time.png and turbulence_abundance.png in the folder specified by savepath, which may be changed for the user's convenience in the script.
