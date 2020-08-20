@@ -11,7 +11,7 @@ B. Temporal analysis - aimed at understanding the time evolution of key chemical
 
 I. Spatial analysis code includes the following notebooks. We assume that wdir is the working directory, which contains the data corresponding to the galaxy -
 
-a. static_phase_num_pdf.ipynb - This will create -
+1-static_phase_num_pdf.ipynb - This will create -
 
 - The list of concerned metals is stored in wdir/spatial_analysis/snap metal_list.csv, both in wdir
 
@@ -26,7 +26,7 @@ a. static_phase_num_pdf.ipynb - This will create -
 
 Note that any required directories will automatically be created if they don't exist.
 
-b. static_fit_pdf.ipynb - This will load the numerical PDF data and fit a Gaussian + exponential decay to it, storing -
+2-static_fit_pdf.ipynb - This will load the numerical PDF data and fit a Gaussian + exponential decay to it, storing -
 
 - The fits in wdir/spatial_analysis/snap/images/fit/fit_m.png
 - The data in wdir/spatial_analysis/snap/data/fit/fit_m_phase_data.csv, where phase is a particular phase of the ISM
@@ -36,7 +36,7 @@ II. Temporal analysis code falls into the following categories -
 
 i. Processing - these scripts process all available snapshots of a simulation to obtain time variation of physical properties, abundance distributions, and their statistics. The scripts are categorized into serialized and parallelized (via multiprocessing library in Python). They include -
 
-a. (parallel_)dynamic_stats_num_pdf.ipynb - This will create -
+1-(parallel_)dynamic_stats_num_pdf.ipynb - This will create -
 
 - The list of concerned metals is stored in wdir/spatial_analysis/snap metal_list.csv, both in wdir
 
@@ -44,13 +44,13 @@ a. (parallel_)dynamic_stats_num_pdf.ipynb - This will create -
 
 - Construct numerical PDFs in cold gas for various metals across all renderable snapshots, saving the data in wdir/temporal_analysis/m/images/num as snap-num_m_data.csv where m is the metal of concern.
 
-b. (parallel_)dynamic_fit_pdf.ipynb - This will load the numerical PDF data and saved parameters for all renderable snapshots to fit these PDFs and save the data in wdir/temporal_analysis/data/fit as snap-fit_m_data.csv and fit parameters in wdir/temporal_analysis/data/fit as fit_m_params.csv.
+2-(parallel_)dynamic_fit_pdf.ipynb - This will load the numerical PDF data and saved parameters for all renderable snapshots to fit these PDFs and save the data in wdir/temporal_analysis/data/fit as snap-fit_m_data.csv and fit parameters in wdir/temporal_analysis/data/fit as fit_m_params.csv.
 
 ii. Plotting - these scripts plot the processed data in multiple useful ways. The scripts include -
 
-a. dynamic_plot_pdfs.ipynb - This will create numerical and fitted PDFs for the processed data, storing them in wdir/temporal_analysis/m/images/num as snap-num_m.png and wdir/temporal_analysis/images/fit as snap-fit_m.png, where snap and m iterate across all available snapshots and chosen metals.
+1-dynamic_plot_pdfs.ipynb - This will create numerical and fitted PDFs for the processed data, storing them in wdir/temporal_analysis/m/images/num as snap-num_m.png and wdir/temporal_analysis/images/fit as snap-fit_m.png, where snap and m iterate across all available snapshots and chosen metals.
 
-b. dynamic_stats_plot.ipynb - This will load all saved parameters for all renderable snapshots to create the following plots in wdir/temporal_analysis/analysis_plots -
+2-dynamic_stats_plot.ipynb - This will load all saved parameters for all renderable snapshots to create the following plots in wdir/temporal_analysis/analysis_plots -
 
 - Halo mass vs. time as halo_mass_vs_time.png 
 - SFR vs. time as SFR_vs_time.png
@@ -60,7 +60,7 @@ b. dynamic_stats_plot.ipynb - This will load all saved parameters for all render
 
 iii. Correlation Analysis - These scripts are meant to do exploratory analysis about how physical properties of the galaxy could be related to their abundance statistics. These include -
 
-a. dynamic_corr.ipynb - This script creates the following plots, storing them in wdir/temporal_analysis/correlation_plots/
+1-dynamic_corr.ipynb - This script creates the following plots, storing them in wdir/temporal_analysis/correlation_plots/
 
 - Heatmap correlating standard deviation of abundances for all metal distributions spread_corr.png
 - Heatmap correlating mass weighted median abundances for all metal distributions cent_mass_corr.png
@@ -71,7 +71,7 @@ a. dynamic_corr.ipynb - This script creates the following plots, storing them in
 - Heatmap correlating abundance statistics of Fe distribution with physical properties phy_fe_corr.png (we realize that Fe is a good proxy for all metals)
 - Scatterplot matrix relating abundance statistics of Fe distribution with physical properties phy_fe_scatter_matrix.pdf
 
-b. dynamic_models.ipynb - This script creates an (expected) model of abundance statistics of the Fe distribution vs. time (realized in all galaxies) and abundance statistics of the Fe distribution vs. mean Mach number (realized only in m10q). This script is somewhat experimental, so I saved the files as abundance_time.png and turbulence_abundance.png in the folder specified by savepath, which may be changed for the user's convenience in the script.
+2-dynamic_models.ipynb - This script creates an (expected) model of abundance statistics of the Fe distribution vs. time (realized in all galaxies) and abundance statistics of the Fe distribution vs. mean Mach number (realized only in m10q). This script is somewhat experimental, so I saved the files as abundance_time.png and turbulence_abundance.png in the folder specified by savepath, which may be changed for the user's convenience in the script.
 
 References
 ----------
